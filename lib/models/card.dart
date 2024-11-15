@@ -6,17 +6,15 @@ import 'package:intl/intl.dart';
 class TaskCard extends StatelessWidget {
   final int index;
   final Task task;
-  final List<Task> tasksList;
+  final VoidCallback onDelete;
   final Color? cardColor;
-  final Widget? trailing;
 
   const TaskCard(
       {super.key,
       required this.index,
       required this.task,
-      required this.tasksList,
+      required this.onDelete,
       this.cardColor,
-      this.trailing,
     });
 
   _deleteTask(int index, BuildContext context) {
@@ -33,7 +31,7 @@ class TaskCard extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  tasksList.removeAt(index);
+                  onDelete();
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
@@ -73,18 +71,13 @@ class TaskCard extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           )
         ]),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            GestureDetector(
+        trailing: GestureDetector(
               onTap: () => _deleteTask(index, context),
               child: const Icon(
                 Icons.delete,
                 color: Color.fromARGB(255, 199, 17, 4),
               ),
             ),
-          ],
-        ),
       ),
     );
   }

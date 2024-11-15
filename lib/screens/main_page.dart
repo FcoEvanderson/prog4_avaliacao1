@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:avaliacao1/providers/task_provider.dart';
 import 'package:avaliacao1/views/task.dart';
+import 'package:provider/provider.dart';
 
 import '../views/create_new_task.dart';
 import '../widgets/notifications.dart';
@@ -146,9 +148,10 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
 
-    List<Task> filteredTasks = _filteredTasks;
+    final taskProvider = Provider.of<TaskProvider>(context);
+    final tasklist = taskProvider.tasksList;
 
-    return filteredTasks.isEmpty
+    return tasklist.isEmpty
         ? const SingleChildScrollView(
           child: Center(
               child: Column(
@@ -171,9 +174,9 @@ class _MainPageState extends State<MainPage> {
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: filteredTasks.length,
+                  itemCount: tasklist.length,
                   itemBuilder: (context, index) {
-                    final task = filteredTasks[index];
+                    final task = tasklist[index];
 
                     String shortDescription = task.description.length > 50 
                       ? '${task.description.substring(0, 44)}...'

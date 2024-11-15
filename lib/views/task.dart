@@ -1,7 +1,9 @@
 import 'package:avaliacao1/models/Task.dart';
+import 'package:avaliacao1/providers/task_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TaskDescription extends StatelessWidget {
   final Task task;
@@ -16,6 +18,8 @@ class TaskDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 233, 233, 233),
       appBar: AppBar(
@@ -55,7 +59,7 @@ class TaskDescription extends StatelessWidget {
                 fontSize: 18
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: Text(task.description)
@@ -67,7 +71,8 @@ class TaskDescription extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: (){
-          Navigator.pop(context, task);
+          taskProvider.markAsCompleted(task);
+          Navigator.pop(context);
         },
         backgroundColor: Colors.green,
             foregroundColor: Colors.white,

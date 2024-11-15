@@ -1,20 +1,28 @@
 import 'package:avaliacao1/models/Task.dart';
+import 'package:avaliacao1/providers/task_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DeleteTask extends StatelessWidget {
   final int index;
-  final List<Task> tasklist;
-  final VoidCallback onTaskDeleted;
 
   const DeleteTask({
     super.key,
     required this.index,
-    required this.tasklist,
-    required this.onTaskDeleted,
   });
 
   _deleteTask(BuildContext context, List<Task> tasksList) {
-    showDialog(
+    
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final taskProvider = Provider.of<TaskProvider>(context);
+
+    return IconButton(
+      icon: const Icon(Icons.delete, color: Color.fromARGB(255, 163, 31, 22)),
+      onPressed: () {
+        showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -27,9 +35,8 @@ class DeleteTask extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  tasksList.removeAt(index);
+                  taskProvider.deleteTask(index);
                   Navigator.pop(context);
-                  onTaskDeleted;
                   (context as Element).markNeedsBuild();
                 },
                 style: ElevatedButton.styleFrom(
@@ -39,13 +46,7 @@ class DeleteTask extends StatelessWidget {
             ],
           );
         });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.delete, color: Color.fromARGB(255, 163, 31, 22)),
-      onPressed: () => _deleteTask(context, tasklist),
+      },
     );
   }
 }

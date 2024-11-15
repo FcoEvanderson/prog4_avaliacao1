@@ -1,9 +1,11 @@
 import 'package:avaliacao1/models/Task.dart';
 import 'package:avaliacao1/models/card.dart';
+import 'package:avaliacao1/providers/task_provider.dart';
 import 'package:avaliacao1/views/create_new_task.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TasksPending extends StatefulWidget {
   final List<Task> pendingTasks;
@@ -80,7 +82,10 @@ class _TasksPendingState extends State<TasksPending> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.pendingTasks.isEmpty
+    final taskProvider = Provider.of<TaskProvider>(context);
+    final pendingTasks = taskProvider.tasksPending;
+
+    return pendingTasks.isEmpty
       ? const SingleChildScrollView(
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -102,16 +107,23 @@ class _TasksPendingState extends State<TasksPending> {
           ],
         ),
     )
-    : ListView.builder(
-        itemCount: widget.pendingTasks.length,
-        itemBuilder: (context, index) {
-          final task = widget.pendingTasks[index];
-          return TaskCard(
-            index: index, 
-            task: task, 
-            tasksList: widget.pendingTasks,
-            cardColor: const Color.fromARGB(255, 252, 108, 108),
-          );
+    : Consumer<TaskProvider>(
+        builder: (context, taskProvider, child) {
+          final pendingTasks = taskProvider.tasksPending;
+
+          return ListView.builder(
+              itemCount: pendingTasks.length,
+              itemBuilder: (context, index) {
+                return TaskCard(
+                  index: index, 
+                  task: pendingTasks[index], 
+                  onDelete: () {
+                    taskProvider.removePendingTask(index);
+                  },
+                  cardColor: const Color.fromARGB(255, 252, 108, 108),
+                );
+              },
+            );
         },
       );
   }
