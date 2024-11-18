@@ -35,7 +35,7 @@ class DeleteTask extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  taskProvider.deleteTask(index);
+                  taskProvider.deleteTask(taskProvider.tasksList[index].id);
                   Navigator.pop(context);
                   (context as Element).markNeedsBuild();
                 },

@@ -1,5 +1,5 @@
 import 'package:avaliacao1/models/Task.dart';
-import 'package:avaliacao1/models/card.dart';
+import 'package:avaliacao1/models/task_card.dart';
 import 'package:avaliacao1/providers/task_provider.dart';
 import 'package:avaliacao1/views/create_new_task.dart';
 import 'package:flutter/material.dart';
@@ -87,25 +87,24 @@ class _TasksPendingState extends State<TasksPending> {
 
     return pendingTasks.isEmpty
       ? const SingleChildScrollView(
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              image: AssetImage('images/pendingtasks_image.png'),
-              width: 300,
-              height: 300,
-            ),
-            Text(
-              'Você não tem tarefas pendentes no momento...',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            Text(
-              'Continue assim!',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: EdgeInsets.only(top: 100, bottom: 50),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(image: AssetImage('images/pendingtasks_image.png'), width: 400,),
+              Text(
+                'Você não tem tarefas pendentes no momento...',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              Text(
+                'Continue assim!',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
+      ),
     )
     : Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
@@ -114,11 +113,13 @@ class _TasksPendingState extends State<TasksPending> {
           return ListView.builder(
               itemCount: pendingTasks.length,
               itemBuilder: (context, index) {
+                final task = taskProvider.tasksPending[index];
+
                 return TaskCard(
                   index: index, 
                   task: pendingTasks[index], 
                   onDelete: () {
-                    taskProvider.removePendingTask(index);
+                    taskProvider.removePendingTask(task.id);
                   },
                   cardColor: const Color.fromARGB(255, 252, 108, 108),
                 );

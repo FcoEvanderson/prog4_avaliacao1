@@ -1,18 +1,28 @@
+import 'package:avaliacao1/firebase_options.dart';
 import 'package:avaliacao1/widgets/notifications.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import '../app/home.dart';
 import '../providers/task_provider.dart';
-import '../views/task.dart';
+import 'views/task_description.dart';
 import 'package:provider/provider.dart';
 import '../models/Task.dart';
 import '../views/create_new_task.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(
-        create: (_) => TaskProvider(AppNotificationService())
+        create: (_) {
+          final taskProvider = TaskProvider(AppNotificationService());
+          taskProvider.initialize();
+          return taskProvider;
+        }
       ),
     ],
     child: const MyApp(),

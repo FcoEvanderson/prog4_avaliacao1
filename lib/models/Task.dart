@@ -1,17 +1,36 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Task {
-  int? id;
+  String id;
   String title;
   String description;
   DateTime dueDate;
-  String? type;
+  String type;
+  bool isCompleted;
+  bool isPending;
 
   Task({
-    this.id, 
+    required this.id, 
     required this.title, 
     required this.description, 
     required this.dueDate,
-    this.type,
+    required this.type,
+    required this.isCompleted,
+    required this.isPending,
   });
+
+  factory Task.fromFirestore (DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Task(
+      id: data['id'],
+      title: data['title'], 
+      description: data['description'], 
+      type: data['type'] ?? 'Outro',
+      dueDate: (data['dueDate']), 
+      isCompleted: data['isCompleted'],
+      isPending: data['isPending']
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -20,6 +39,8 @@ class Task {
       'description': description,
       'dueDate': dueDate,
       'type': type,
+      'isCompleted': isCompleted,
+      'isPending': isPending,
     };
   }
 
@@ -29,7 +50,9 @@ class Task {
       title: map['title'],
       description: map['description'],
       dueDate: DateTime.parse(map['dueDate']),
-      type: map['type']
+      type: map['type'],
+      isCompleted: map['isCompleted'],
+      isPending: map['isPending']
     );
   }
 }

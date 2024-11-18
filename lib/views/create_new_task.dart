@@ -1,3 +1,8 @@
+import 'package:avaliacao1/providers/task_provider.dart';
+import 'package:avaliacao1/widgets/Button.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+
 import '../models/TextFormField.dart';
 import '../models/Task.dart';
 import 'package:flutter/material.dart';
@@ -59,14 +64,30 @@ class _CreateNewTaskState extends State<CreateNewTask> {
       return;
     }
 
+    const uuid =  Uuid();
+    String taskId = widget.existingTask?.id ?? uuid.v4();
+
     final newTask = Task(
+      id: taskId,
       title: title.toUpperCase(),
       description: description, 
       dueDate: date!, 
-      type: _selectedType!
+      type: _selectedType!,
+      isCompleted: false,
+      isPending: false,
     );
 
-    Navigator.pop(context, newTask);
+    if(widget.existingTask == null) {
+      Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
+    } else {
+      Provider.of<TaskProvider>(context, listen: false).updateTask(
+        Provider.of<TaskProvider>(context, listen: false)
+          .tasksList.indexWhere((task) => task.id == newTask.id),
+          newTask
+      );
+    }
+
+    Navigator.pop(context);
   }
 
   @override
@@ -91,7 +112,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                     'Que tal tornar o seu dia mais produtivo?', 
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                    const Image(image: AssetImage('images/newtask_image.png')),
+                    const Image(image: AssetImage('images/newtask_image.png'), width: 400,),
 
                     InputFormField(
                       margin: const EdgeInsets.only(bottom: 20, top: 20),
@@ -156,23 +177,23 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white
-                            ),
-                            onPressed: () => Navigator.pop(context), 
-                            child: const Text('Cancelar'),
+                          PersonalizedButton(
+                            textButton: false, 
+                            buttonText: 'Cancelar', 
+                            onPressed: () => Navigator.pop(context),
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
                           ),
-                          SizedBox(width: 30),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white
-                            ),
-                            onPressed: _saveTask, 
-                            child: const Text('Salvar'),
-                          ),
+
+                          const SizedBox(width: 30),
+
+                          PersonalizedButton(
+                            textButton: false, 
+                            buttonText: widget.existingTask == null ? 'Salvar' : 'Editar', 
+                            onPressed: _saveTask,
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                          )
                         ],
                       ),
                     ),

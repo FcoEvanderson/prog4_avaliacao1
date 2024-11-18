@@ -19,6 +19,8 @@ class TaskDescription extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    final isCompleted = taskProvider.tasksCompleted.contains(task);
+    final isPending = taskProvider.tasksPending.contains(task);
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 233, 233, 233),
@@ -68,10 +70,14 @@ class TaskDescription extends StatelessWidget {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: isCompleted ? null
+      : FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: (){
-          taskProvider.markAsCompleted(task);
+          if (isPending) {
+            taskProvider.tasksPending.remove(task);
+          }
+          taskProvider.moveTaskToCompleted(task.id);
           Navigator.pop(context);
         },
         backgroundColor: Colors.green,

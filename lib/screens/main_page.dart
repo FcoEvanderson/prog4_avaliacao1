@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:avaliacao1/providers/task_provider.dart';
-import 'package:avaliacao1/views/task.dart';
+import 'package:avaliacao1/views/task_description.dart';
 import 'package:provider/provider.dart';
 
 import '../views/create_new_task.dart';
@@ -35,6 +35,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState(); 
+    Provider.of<TaskProvider>(context, listen: false).initialize();
     notificationService = AppNotificationService();
     _startExpirationChecker();
   }
@@ -72,7 +73,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _startExpirationChecker() {
-    expirationChecker = Timer.periodic(const Duration(minutes: 1), (timer) {
+    expirationChecker = Timer.periodic(const Duration(hours: 8), (timer) {
       _checkExpirationChecker();
     });
   }
@@ -112,39 +113,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  _deleteTask(int index) {
-    showDialog(
-      context: context, 
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Tem certeza que deseja excluir?'),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black
-                ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  widget.tasksList.removeAt(index);
-                });
-                Navigator.pop(context);
-              },
-              child: Text('Excluir'),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, 
-                  foregroundColor: Colors.white
-                ),
-            ),
-          ],
-        );
-      }
-      );
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -154,21 +122,26 @@ class _MainPageState extends State<MainPage> {
     return tasklist.isEmpty
         ? const SingleChildScrollView(
           child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image(image: AssetImage('images/search_tasks.png')),
-                Text(
-                  'Hmm, parece que você não possui tarefas no momento...',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                Text(
-                  'Vamos adicionar algumas? Clique no botão "+"',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-              ],
-            )),
+              child: Padding(
+                padding: EdgeInsets.only(top: 100, bottom: 50),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                
+                  Image(image: AssetImage('images/search_tasks.png'), width: 400,),
+                  
+                  Text(
+                    'Hmm, parece que não tem tarefas por aqui no momento...',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Text(
+                    'Vamos adicionar uma? Clique no botão "+"',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+                            ),
+              )),
         )
         : Column(
             children: [
@@ -208,7 +181,7 @@ class _MainPageState extends State<MainPage> {
                               );
 
                               if (result != null) {
-                                widget.markCompletedTask(result);
+                                taskProvider.moveTaskToCompleted(result);
                               }
                             },
                         trailing: Row(
@@ -225,7 +198,36 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => _deleteTask(index),
+                              onTap: () {
+                                showDialog(
+                                  context: context, 
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Tem certeza que deseja excluir?'),
+                                      actions: <Widget>[
+                                        ElevatedButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text('Cancelar'),
+                                          style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.black
+                                            ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            taskProvider.deleteTask(task.id);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Excluir'),
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red, 
+                                              foregroundColor: Colors.white
+                                            ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  );
+                              },
                               child: const Icon(
                                 Icons.delete,
                                 color: Color.fromARGB(255, 199, 17, 4),

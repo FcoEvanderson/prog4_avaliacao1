@@ -20,37 +20,7 @@ class _HomeState extends State<Home> {
   List<Task> tasksList = [];
   List<Task> tasksPending = [];
   List<Task> completedTasks = [];
-  String selectedType = 'Todos';
   final notificationService = AppNotificationService();
-
-  // Future<void> _addTaskScreen() async {
-  //   final newTask = await Navigator.push(
-  //     context, 
-  //     MaterialPageRoute(builder: (context) => const CreateNewTask())
-  //   );
-
-  //   if (newTask != null) {
-  //     setState(() {
-  //       final taskDueDate = DateTime(
-  //         newTask.dueDate.year,
-  //         newTask.dueDate.month,
-  //         newTask.dueDate.day
-  //       );
-
-  //       if(taskDueDate.isBefore(DateTime.now())) {
-  //         tasksPending.add(newTask);
-        
-  //         notificationService.showNotification(
-  //           'A TAREFA EXPIROU', 
-  //           'O prazo da tarefa "${newTask.title}" expirou!'
-  //         );
-
-  //       } else {
-  //         tasksList.add(newTask);
-  //       }
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -63,15 +33,15 @@ class _HomeState extends State<Home> {
           appBar: AppBar(
             title: Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: Text('Minhas Atividades')
                 ),
                 
                 DropdownButton<String>(
-                  value: selectedType,
+                  value: taskProvider.selectedType,
                   icon: Icon(Icons.filter_list, color: Colors.white),
                   dropdownColor: Colors.lightBlue,
-                  items: ['Todos', 'Pessoal', 'Trabalho', 'Estudo', 'Outro']
+                  items: ['Todos', 'Pessoal', 'Estudo', 'Trabalho', 'Outro']
                       .map((String type) {
                         return DropdownMenuItem(
                           value: type,
@@ -101,13 +71,11 @@ class _HomeState extends State<Home> {
                 tasksList: taskProvider.tasksList, 
                 filterType: taskProvider.selectedType,
                 addTaskToPending: (Task task) {
-                  taskProvider.markAsPending(task);
+                  taskProvider.moveTaskToPending(task.id);
                 },
                 markCompletedTask: (task) {
-                  setState(() {
-                    tasksList.remove(task);
-                    completedTasks.add(task);
-                  });
+                  taskProvider.deleteTask(task.id);
+                  completedTasks.add(task);
                 },
               ),
               TasksPending(pendingTasks: taskProvider.tasksPending),
