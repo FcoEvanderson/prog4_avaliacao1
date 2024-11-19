@@ -41,7 +41,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: date ?? DateTime.now(),
-      firstDate: DateTime(2024),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
     if (picked != null && picked != date) {

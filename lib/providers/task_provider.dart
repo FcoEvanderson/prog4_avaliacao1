@@ -32,56 +32,59 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Future<void> loadTasks() async {
-    try {
-      await _loadTasks();
-      await _loadCompletedTasks();
-      await _loadPendingTasks();
-      notifyListeners();
-    } catch (e) {
-      print('Erro ao carregar tarefas: $e');
-    }
+    await _loadTasks();
+    await _loadCompletedTasks();
+    await _loadPendingTasks();
+    notifyListeners();
   }
 
   Future<void> _loadTasks() async {
-    final url = '$apiUrl/tasks.json';
+    try {
+      final url = '$apiUrl/tasks.json';
 
-    final response = await http.get(
-      Uri.parse(url),
-    );
-    _tasksList.clear();
-    final data = jsonDecode(response.body);
-    data.forEach((key, data) {
-      data['id'] = key;
-      _tasksList.add(Task.fromMap(data));
-    });
+      final response = await http.get(
+        Uri.parse(url),
+      );
+      _tasksList.clear();
+      final data = jsonDecode(response.body);
+      data.forEach((key, data) {
+        data['id'] = key;
+        _tasksList.add(Task.fromMap(data));
+      });
+    } catch (e) {}
   }
 
   Future<void> _loadCompletedTasks() async {
-    final url = '$apiUrl/completed-tasks.json';
+    try {
+      final url = '$apiUrl/completed-tasks.json';
 
-    final response = await http.get(
-      Uri.parse(url),
-    );
-    _tasksCompleted.clear();
-    final data = jsonDecode(response.body);
-    data.forEach((key, data) {
-      data['id'] = key;
-      _tasksCompleted.add(Task.fromMap(data));
-    });
+      final response = await http.get(
+        Uri.parse(url),
+      );
+      _tasksCompleted.clear();
+      final data = jsonDecode(response.body);
+      data.forEach((key, data) {
+        data['id'] = key;
+        _tasksCompleted.add(Task.fromMap(data));
+      });
+    } catch (e) {}
   }
 
   Future<void> _loadPendingTasks() async {
-    final url = '$apiUrl/pending-tasks.json';
+    try {
+      final url = '$apiUrl/pending-tasks.json';
 
-    final response = await http.get(
-      Uri.parse(url),
-    );
-    _tasksPending.clear();
-    final data = jsonDecode(response.body);
-    data.forEach((key, data) {
-      data['id'] = key;
-      _tasksPending.add(Task.fromMap(data));
-    });
+      final response = await http.get(
+        Uri.parse(url),
+      );
+      _tasksPending.clear();
+      final data = jsonDecode(response.body);
+
+      data.forEach((key, data) {
+        data['id'] = key;
+        _tasksPending.add(Task.fromMap(data));
+      });
+    } catch (e) {}
   }
 
   void setSelectedType(String newType) {
@@ -169,19 +172,30 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  void moveTaskToCompleted(String taskId) {
+  Future<void> moveTaskToCompleted(Task task) async {
     final urlToCompleted = '$apiUrl/completed-tasks.json';
-    final urlRemoveTask = '$apiUrl/tasks/$taskId.json';
+    final urlRemoveTask = '$apiUrl/tasks/${task.id}.json';
+    final urlRemovePendingTask = '$apiUrl/pending-tasks/${task.id}.json';
+
     try {
-      final task = _tasksList.firstWhere((task) => task.id == taskId);
-      _tasksList.removeWhere((task) => task.id == taskId);
+      if (task.isPending) {
+        _tasksPending.remove(task);
+        task.isCompleted = true;
+        task.isPending = false;
+        _tasksCompleted.add(task);
+        http.delete(Uri.parse(urlRemovePendingTask), body: task.toJson());
+        http.post(Uri.parse(urlToCompleted), body: task.toJson());
+      } else {
+        _tasksList.remove(task);
 
-      task.isCompleted = true;
-      task.isPending = false;
+        task.isCompleted = true;
+        task.isPending = false;
 
-      _tasksCompleted.add(task);
-      http.delete(Uri.parse(urlRemoveTask), body: task.toJson());
-      http.post(Uri.parse(urlToCompleted), body: task.toJson());
+        _tasksCompleted.add(task);
+
+        http.delete(Uri.parse(urlRemoveTask), body: task.toJson());
+        http.post(Uri.parse(urlToCompleted), body: task.toJson());
+      }
 
       notifyListeners();
     } catch (e) {
@@ -215,13 +229,11 @@ class TaskProvider extends ChangeNotifier {
 
     for (Task task in List.from(_tasksList)) {
       if (task.dueDate.isBefore(startToday)) {
+        moveTaskToPending(task.id);
         _tasksList.remove(task);
-        deleteTask(task.id);
 
         task.isPending = true;
         task.isCompleted = false;
-
-        _tasksPending.add(task);
 
         notificationService.showNotification(
           'A TAREFA EXPIROU!',

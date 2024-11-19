@@ -190,7 +190,7 @@ class _MainPageState extends State<MainPage> {
                                 ));
 
                             if (result != null) {
-                              taskProvider.moveTaskToCompleted(result);
+                              taskProvider.moveTaskToCompleted(task);
                             }
                           },
                           trailing: Row(

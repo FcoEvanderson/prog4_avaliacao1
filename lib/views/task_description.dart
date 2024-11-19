@@ -77,7 +77,7 @@ class TaskDescription extends StatelessWidget {
           if (isPending) {
             taskProvider.tasksPending.remove(task);
           }
-          taskProvider.moveTaskToCompleted(task.id);
+          taskProvider.moveTaskToCompleted(task);
           Navigator.pop(context);
         },
         backgroundColor: Colors.green,
