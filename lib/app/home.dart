@@ -39,13 +39,13 @@ class _HomeState extends State<Home> {
                 
                 DropdownButton<String>(
                   value: taskProvider.selectedType,
-                  icon: Icon(Icons.filter_list, color: Colors.white),
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
                   dropdownColor: Colors.lightBlue,
                   items: ['Todos', 'Pessoal', 'Estudo', 'Trabalho', 'Outro']
                       .map((String type) {
                         return DropdownMenuItem(
                           value: type,
-                          child: Text(type, style: TextStyle(color: Colors.white)),
+                          child: Text(type, style: const TextStyle(color: Colors.white)),
                         );
                       }).toList(),
                   onChanged: (String? newType) {

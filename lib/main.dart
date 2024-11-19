@@ -11,19 +11,14 @@ import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(
-        create: (_) {
-          final taskProvider = TaskProvider(AppNotificationService());
-          taskProvider.initialize();
-          return taskProvider;
-        }
-      ),
+      ChangeNotifierProvider(create: (_) {
+        final taskProvider = TaskProvider(AppNotificationService());
+        return taskProvider;
+      }),
     ],
     child: const MyApp(),
   ));
@@ -37,14 +32,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/',
       onGenerateRoute: (settings) {
-      if (settings.name == '/taskDescription') {
-        final task = settings.arguments as Task;
-        return MaterialPageRoute(
-          builder: (context) => TaskDescription(task: task),
-        );
-      }
-      return null;
-    },
+        if (settings.name == '/taskDescription') {
+          final task = settings.arguments as Task;
+          return MaterialPageRoute(
+            builder: (context) => TaskDescription(task: task),
+          );
+        }
+        return null;
+      },
       routes: {
         '/createNewTask': (context) => const CreateNewTask(),
       },
